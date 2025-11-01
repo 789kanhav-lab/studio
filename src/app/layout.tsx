@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ChronoTrack',
+  title: 'TimeX Track',
   description: 'A digital stopwatch app for precise time tracking.',
 };
 

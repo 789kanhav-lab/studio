@@ -90,7 +90,7 @@ export function Stopwatch() {
     <div className="flex flex-col items-center justify-center min-h-screen w-full bg-background py-12 px-4 space-y-8">
       <div className="text-center space-y-2">
         <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
-          ChronoTrack
+          TimeX Track
         </h1>
         <p className="text-muted-foreground">Your precise digital stopwatch.</p>
       </div>
