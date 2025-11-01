@@ -73,7 +73,7 @@ export function Stopwatch() {
       lapTime,
       totalTime: time,
     };
-    setLaps((prevLaps) => [...prevLaps, newLap]);
+    setLaps((prevLaps) => [newLap, ...prevLaps]);
   };
 
   const handleReset = () => {
@@ -87,63 +87,66 @@ export function Stopwatch() {
   const slowestLapTime = laps.length > 1 ? Math.max(...laps.map((l) => l.lapTime)) : 0;
   
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full py-12 px-4 space-y-6 sm:space-y-8 text-foreground">
-      <div className="text-center">
-        <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-primary via-accent to-primary">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-background py-12 px-4 space-y-8">
+      <div className="text-center space-y-2">
+        <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
           ChronoTrack
         </h1>
-        <p className="text-muted-foreground mt-2">Your precise digital stopwatch.</p>
+        <p className="text-muted-foreground">Your precise digital stopwatch.</p>
       </div>
 
-      <Card className="w-full max-w-md bg-card/80 border-primary/20 shadow-2xl shadow-primary/5">
+      <Card className="w-full max-w-md bg-card/50 border-primary/20 shadow-2xl shadow-primary/10 backdrop-blur-sm">
         <CardContent className="p-6 flex justify-center">
-          <div className="text-7xl md:text-8xl font-mono tabular-nums tracking-tighter">
+          <div className="font-mono text-7xl md:text-8xl tracking-tighter tabular-nums bg-clip-text text-transparent bg-gradient-to-b from-slate-200 to-slate-400">
             {formatTime(time)}
           </div>
         </CardContent>
       </Card>
 
-      <div className="flex w-full max-w-md justify-between gap-2 sm:gap-4">
-        <Button onClick={handleReset} variant="outline" className="w-full" size="lg" disabled={time === 0 && !isRunning}>
-          <RotateCcw className="h-5 w-5 sm:mr-2" /> <span className="hidden sm:inline">Reset</span>
+      <div className="grid grid-cols-3 w-full max-w-md gap-4">
+        <Button onClick={handleReset} variant="outline" className="py-6 text-lg rounded-xl" disabled={time === 0 && !isRunning}>
+          <RotateCcw className="h-6 w-6" />
         </Button>
-        <Button onClick={handleStartStop} size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button onClick={handleStartStop} size="lg" className="py-8 text-lg rounded-xl col-span-1 bg-gradient-to-br from-purple-500 to-pink-500 text-primary-foreground hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
           {isRunning ? (
-            <Pause className="h-6 w-6 sm:mr-2" />
+            <Pause className="h-8 w-8" />
           ) : (
-            <Play className="h-6 w-6 sm:mr-2" />
+            <Play className="h-8 w-8 ml-1" />
           )}
-          <span className="hidden sm:inline">{isRunning ? "Pause" : "Start"}</span>
         </Button>
-        <Button onClick={handleLap} variant="outline" className="w-full" size="lg" disabled={!isRunning}>
-          <Flag className="h-5 w-5 sm:mr-2" /> <span className="hidden sm:inline">Lap</span>
+        <Button onClick={handleLap} variant="outline" className="py-6 text-lg rounded-xl" disabled={!isRunning}>
+          <Flag className="h-6 w-6" />
         </Button>
       </div>
 
       {laps.length > 0 && (
-        <Card className="w-full max-w-md bg-card/80 border-primary/20">
+        <Card className="w-full max-w-md bg-card/50 border-primary/20 backdrop-blur-sm">
           <ScrollArea className="h-64">
             <Table>
-              <TableHeader className="sticky top-0 bg-card/95 backdrop-blur-sm z-10">
+              <TableHeader className="sticky top-0 bg-card/80 backdrop-blur-sm z-10">
                 <TableRow>
-                  <TableHead className="w-[80px]">Lap</TableHead>
-                  <TableHead className="text-center">Lap Time</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="w-[80px] font-bold">Lap</TableHead>
+                  <TableHead className="text-center font-bold">Lap Time</TableHead>
+                  <TableHead className="text-right font-bold">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {[...laps].reverse().map((lap) => (
+                {laps.map((lap) => (
                   <TableRow
                     key={lap.number}
                     className={cn(
                       "font-mono transition-colors",
-                      laps.length > 1 && {
-                        "text-success": lap.lapTime === fastestLapTime,
-                        "text-destructive": lap.lapTime === slowestLapTime,
+                      laps.length > 1 && lap.lapTime > 0 && {
+                        "text-green-400": lap.lapTime === fastestLapTime,
+                        "text-red-400": lap.lapTime === slowestLapTime,
                       }
                     )}
                   >
-                    <TableCell className="font-medium">{lap.number}</TableCell>
+                    <TableCell className="font-medium">
+                      <span className="bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs">
+                        {lap.number}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-center">
                       {formatTime(lap.lapTime)}
                     </TableCell>
