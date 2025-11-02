@@ -46,11 +46,47 @@ export function Stopwatch() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef(0);
 
+  // Load state from localStorage on initial render
   useEffect(() => {
+    try {
+      const savedState = localStorage.getItem("stopwatchState");
+      if (savedState) {
+        const { time, laps, isRunning, startTime } = JSON.parse(savedState);
+        setLaps(laps);
+        setTime(time);
+        setIsRunning(isRunning);
+        if (isRunning) {
+          startTimeRef.current = Date.now() - time;
+          intervalRef.current = setInterval(() => {
+            setTime(Date.now() - startTimeRef.current);
+          }, 10);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load state from localStorage", error);
+      // Clear corrupted state
+      localStorage.removeItem("stopwatchState");
+    }
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    const stateToSave = {
+      time,
+      laps,
+      isRunning,
+    };
+    try {
+      localStorage.setItem("stopwatchState", JSON.stringify(stateToSave));
+    } catch (error) {
+      console.error("Failed to save state to localStorage", error);
+    }
+  }, [time, laps, isRunning]);
+
 
   const handleStartStop = () => {
     if (isRunning) {
@@ -81,6 +117,11 @@ export function Stopwatch() {
     setIsRunning(false);
     setTime(0);
     setLaps([]);
+    try {
+      localStorage.removeItem("stopwatchState");
+    } catch (error) {
+      console.error("Failed to clear state from localStorage", error);
+    }
   };
 
   const fastestLapTime = laps.length > 1 ? Math.min(...laps.map((l) => l.lapTime)) : 0;
@@ -104,17 +145,17 @@ export function Stopwatch() {
       </Card>
 
       <div className="grid grid-cols-3 w-full max-w-md gap-4">
-        <Button onClick={handleReset} variant="outline" className="py-6 text-lg rounded-xl" disabled={time === 0 && !isRunning}>
+        <Button onClick={handleReset} variant="outline" className="py-6 text-lg rounded-xl" disabled={time === 0 && !isRunning} aria-label="Reset">
           <RotateCcw className="h-6 w-6" />
         </Button>
-        <Button onClick={handleStartStop} size="lg" className="py-8 text-lg rounded-xl col-span-1 bg-gradient-to-br from-purple-500 to-pink-500 text-primary-foreground hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+        <Button onClick={handleStartStop} size="lg" className="py-8 text-lg rounded-xl col-span-1 bg-gradient-to-br from-purple-500 to-pink-500 text-primary-foreground hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg" aria-label={isRunning ? "Pause" : "Start"}>
           {isRunning ? (
             <Pause className="h-8 w-8" />
           ) : (
             <Play className="h-8 w-8 ml-1" />
           )}
         </Button>
-        <Button onClick={handleLap} variant="outline" className="py-6 text-lg rounded-xl" disabled={!isRunning}>
+        <Button onClick={handleLap} variant="outline" className="py-6 text-lg rounded-xl" disabled={!isRunning} aria-label="Lap">
           <Flag className="h-6 w-6" />
         </Button>
       </div>
